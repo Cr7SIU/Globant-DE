@@ -47,7 +47,7 @@ def create_schema(schema_parameters: SchemaParameters):
 
 
 def create_table(table_parameters: TableDefinition):
-    """Crear una tabla en la base de datos y esquema especificados."""
+    """Create a new table within a specified schema in a PostgreSQL database."""
     try:
         with connect_to_db(table_parameters.db_name) as conn:
             with conn.cursor() as cursor:
@@ -63,11 +63,9 @@ def create_table(table_parameters: TableDefinition):
 def get_columns_from_table(table_parameters : TableParameters):
     """Obtiene los nombres de las columnas de una tabla específica en el esquema dado."""
     try:
-        # Conectar a la base de datos
         conn = connect_to_db(table_parameters.db_name)
         cursor = conn.cursor()
 
-        # Consulta SQL para obtener las columnas de la tabla
         cursor.execute(sql.SQL("""
             SELECT column_name
             FROM information_schema.columns
@@ -75,7 +73,6 @@ def get_columns_from_table(table_parameters : TableParameters):
             AND table_name = %s;
         """), (table_parameters.schema_name, table_parameters.table_name))
 
-        # Obtener las columnas
         columns = [column[0] for column in cursor.fetchall()]
 
         cursor.close()
@@ -104,16 +101,12 @@ def fetch_views(db_name: str) -> List[Dict]:
     """
     
     try:
-        # Conectar a la base de datos
         with connect_to_db(db_name) as conn:
             with conn.cursor() as cursor:
-                # Ejecutar la consulta SQL
                 cursor.execute(query)
                 
-                # Obtener las filas de resultados
                 rows = cursor.fetchall()
                 
-                # Convertir las filas en una lista de diccionarios
                 views = [{"table_schema": row[0], "table_name": row[1]} for row in rows]
                 
                 return views
